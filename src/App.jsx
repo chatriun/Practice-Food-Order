@@ -1,11 +1,29 @@
-function App() {
+import { useState } from "react";
+import logo from "../public/logo.jpg";
+import AvailableMeals from "./component/AvailableMeals";
+import Modal from "./component/Modal";
+
+const App = () => {
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const handleClickCart = () => {
+    setModalIsOpen(true);
+  };
+
   return (
     <>
-      <h1>You got this 💪</h1>
-      <p>Stuck? Not sure how to proceed?</p>
-      <p>Don't worry - we've all been there. Let's build it together!</p>
+      <Modal open={modalIsOpen}>test</Modal>
+      <div id="main-header">
+        <div id="title">
+          <img src={logo} alt="logo-react-food-order" />
+          <h1>reactfood</h1>
+        </div>
+        <button onClick={handleClickCart}>
+          <h1>Cart</h1>
+        </button>
+      </div>
+      <AvailableMeals />
     </>
   );
-}
+};
 
 export default App;
