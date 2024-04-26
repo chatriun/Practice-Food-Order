@@ -17,8 +17,6 @@ const Meals = () => {
       setIsFetching(false);
     };
     fetchMeals();
-
-    console.log(meals);
   }, []);
 
   return (
