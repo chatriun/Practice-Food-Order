@@ -1,30 +1,32 @@
-const Meals = ({ isLoading, loadingText, meals, onSelectMeal }) => {
+import { useState } from "react";
+import { useEffect } from "react";
+import MealItem from "./MealItem";
+
+const Meals = () => {
+  const [meals, setMeals] = useState([]);
+  const [isFetching, setIsFetching] = useState(false);
+  useEffect(() => {
+    const fetchMeals = async () => {
+      try {
+        setIsFetching(true);
+        const response = await fetch("http://localhost:3000/meals");
+        const resData = await response.json();
+        setMeals(resData);
+        setIsFetching(false);
+      } catch (error) {}
+      setIsFetching(false);
+    };
+    fetchMeals();
+  }, []);
+
   return (
     <section>
-      {isLoading && <p>{loadingText}</p>}
-      {!isLoading && meals.length > 0 && (
-        <ul id="meals">
-          {meals.map((meal) => (
-            <li key={meal.id} className="meal-item">
-              <article>
-                <img
-                  src={`http://localhost:3000/${meal.image}`}
-                  alt={meal.image}
-                  className="meal-item img"
-                />
-                <h3>{meal.name}</h3>
-                <span className="meal-item-price">{meal.price}</span>
-                <span className="meal-item-description">
-                  {meal.description}
-                </span>
-                <button onClick={() => onSelectMeal(meal)}>
-                  <p> Add to cart</p>
-                </button>
-              </article>
-            </li>
-          ))}
-        </ul>
-      )}
+      <div>{isFetching && <p>fetching...</p>}</div>
+      <ul id="meals">
+        {meals.map((meal) => (
+          <MealItem key={meal.id} meal={meal} />
+        ))}
+      </ul>
     </section>
   );
 };

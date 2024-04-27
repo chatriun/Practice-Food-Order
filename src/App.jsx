@@ -1,29 +1,19 @@
-import { useState } from "react";
-import logo from "../public/logo.jpg";
-import AvailableMeals from "./component/AvailableMeals";
-import Modal from "./component/Modal";
+import Cart from "./component/Cart";
+import Header from "./component/Header";
+import Meals from "./component/Meals";
+import { CartContextProvider } from "./store/CartContext";
+import { UserProgressContextProvider } from "./store/UserProgressContext";
 
-const App = () => {
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const handleClickCart = () => {
-    setModalIsOpen(true);
-  };
-
+function App() {
   return (
-    <>
-      <Modal open={modalIsOpen}>test</Modal>
-      <div id="main-header">
-        <div id="title">
-          <img src={logo} alt="logo-react-food-order" />
-          <h1>reactfood</h1>
-        </div>
-        <button onClick={handleClickCart}>
-          <h1>Cart</h1>
-        </button>
-      </div>
-      <AvailableMeals />
-    </>
+    <UserProgressContextProvider>
+      <CartContextProvider>
+        <Header />
+        <Meals />
+        <Cart />
+      </CartContextProvider>
+    </UserProgressContextProvider>
   );
-};
+}
 
 export default App;
