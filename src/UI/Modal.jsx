@@ -1,9 +1,10 @@
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import Button from "./Button";
 
-const Modal = ({ children, open, onClose }) => {
+const Modal = ({ children, className = "", open, onClose }) => {
   const dialog = useRef();
+
+  const cssClass = `modal ${className}`;
 
   useEffect(() => {
     if (open) {
@@ -16,7 +17,7 @@ const Modal = ({ children, open, onClose }) => {
   }, [open]);
 
   return createPortal(
-    <dialog className="modal" ref={dialog} onClose={onClose}>
+    <dialog className={cssClass} ref={dialog} onClose={onClose}>
       {children}
     </dialog>,
     document.getElementById("modal")
