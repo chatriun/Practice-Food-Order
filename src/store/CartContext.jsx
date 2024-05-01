@@ -29,9 +29,7 @@ const cartReducer = (state, action) => {
     }
     return { ...state, items: updatedItems };
   } else if (action.type === "REMOVE_ITEM") {
-    const itemIndex = state.items.findIndex(
-      (item) => item.id === action.item.id
-    );
+    const itemIndex = state.items.findIndex((item) => item.id === action.id);
 
     const existingItem = state.items[itemIndex];
     const updatedItems = [...state.items];
@@ -76,8 +74,6 @@ export const CartContextProvider = ({ children }) => {
     clearCart,
   };
 
-  console.log(cartContext);
-  console.log(cartContext.items.length);
   return (
     <CartContext.Provider value={cartContext}>{children}</CartContext.Provider>
   );

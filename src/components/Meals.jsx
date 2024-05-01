@@ -18,13 +18,15 @@ const Meals = () => {
   }, []);
 
   return (
-    <ul id="meals">
-      {meals.map((meal) => (
-        <div className="meal-item" key={meal.id}>
-          <MealItem meal={meal} />
-        </div>
-      ))}
-    </ul>
+    <>
+      <ul id="meals">
+        {meals.map((meal) => (
+          <div className="meal-item" key={meal.id}>
+            <MealItem meal={meal} />
+          </div>
+        ))}
+      </ul>
+    </>
   );
 };
 
