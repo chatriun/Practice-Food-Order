@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import Modal from "../UI/Modal";
 import UserProgressContext from "../store/UserProgressContext";
 import Input from "../UI/Input";
@@ -13,13 +13,13 @@ const Checkout = () => {
     userProgressCtx.hideCheckout();
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const fs = new FormData(event.target);
     const data = Object.fromEntries(fs.entries());
 
-    fetch("http://localhost:3000/orders", {
+    await fetch("http://localhost:3000/orders", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -31,10 +31,25 @@ const Checkout = () => {
         },
       }),
     });
+
+    cartCtx.clearCart();
+    userProgressCtx.hideCheckout();
   };
 
+  let action = (
+    <>
+      <Button textOnly type="button" onClick={handleCloseCheckout}>
+        close
+      </Button>
+      <Button>submit order</Button>
+    </>
+  );
+
   return (
-    <Modal open={userProgressCtx.status === "SHOW_CHECKOUT"}>
+    <Modal
+      open={userProgressCtx.status === "SHOW_CHECKOUT"}
+      onClose={handleCloseCheckout}
+    >
       <form onSubmit={handleSubmit}>
         <Input title="Full Name" type="text" id="name" />
         <Input title="E-Mail Address" type="email" id="email" />
@@ -44,12 +59,7 @@ const Checkout = () => {
           <Input title="City" type="text" id="city" />
         </div>
 
-        <p className="modal-actions">
-          <Button textOnly type="button" onClick={handleCloseCheckout}>
-            close
-          </Button>
-          <Button>submit order</Button>
-        </p>
+        <p className="modal-actions">{action}</p>
       </form>
     </Modal>
   );
