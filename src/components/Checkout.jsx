@@ -4,6 +4,7 @@ import UserProgressContext from "../store/UserProgressContext";
 import Input from "../UI/Input";
 import Button from "../UI/Button";
 import CartContext from "../store/CartContext";
+import useHttp from "../hook/useHttp";
 
 const Checkout = () => {
   const userProgressCtx = useContext(UserProgressContext);
@@ -13,37 +14,64 @@ const Checkout = () => {
     userProgressCtx.hideCheckout();
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  // const handleFinishCart = () => {
+  //   userProgressCtx.hideCheckout();
+  //   cartCtx.clearCart();
+  //   clearData();
+  // };
 
-    const fs = new FormData(event.target);
-    const data = Object.fromEntries(fs.entries());
-
-    await fetch("http://localhost:3000/orders", {
+  const { data, isLoading, error, fetchData, clearData } = useHttp(
+    "http://localhost:3000/orders",
+    {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
+    }
+  );
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const fs = new FormData(event.target);
+    const customerOrder = Object.fromEntries(fs.entries());
+
+    fetchData(
+      JSON.stringify({
         order: {
           items: cartCtx.items,
-          customer: data,
+          customer: customerOrder,
         },
-      }),
-    });
+      })
+    );
 
     cartCtx.clearCart();
-    userProgressCtx.hideCheckout();
+    clearData();
   };
 
-  let action = (
+  const showButton = (
     <>
       <Button textOnly type="button" onClick={handleCloseCheckout}>
+        {/* {console.log(`before-${data}`)} */}
         close
       </Button>
       <Button>submit order</Button>
     </>
   );
+  const action = isLoading ? <span>sending...</span> : showButton;
+
+  if (data && !error) {
+    // console.log(`successPage-${data}`);
+    return (
+      <Modal
+        open={userProgressCtx.status === "SHOW_CHECKOUT"}
+        onClose={handleCloseCheckout}
+      >
+        <h3>success!</h3>
+        <Button onClick={handleCloseCheckout}>okay</Button>
+      </Modal>
+    );
+  }
 
   return (
     <Modal
