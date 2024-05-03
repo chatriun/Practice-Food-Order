@@ -10,6 +10,7 @@ const Modal = ({ children, className = "", onClose, open }) => {
     if (open) {
       dialog.current.showModal();
     }
+    //TODO: conflict
     return () => {
       dialog.current.close();
     };

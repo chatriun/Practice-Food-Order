@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useRef } from "react";
 import Modal from "../UI/Modal";
 import UserProgressContext from "../store/UserProgressContext";
 import Input from "../UI/Input";
@@ -6,7 +6,15 @@ import Button from "../UI/Button";
 import CartContext from "../store/CartContext";
 import useHttp from "../hook/useHttp";
 
+const option = {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+};
+
 const Checkout = () => {
+  const form = useRef();
   const userProgressCtx = useContext(UserProgressContext);
   const cartCtx = useContext(CartContext);
 
@@ -14,20 +22,13 @@ const Checkout = () => {
     userProgressCtx.hideCheckout();
   };
 
-  // const handleFinishCart = () => {
-  //   userProgressCtx.hideCheckout();
-  //   cartCtx.clearCart();
-  //   clearData();
-  // };
+  const handleCloseSuccess = () => {
+    userProgressCtx.hideCheckoutSuccess();
+  };
 
   const { data, isLoading, error, fetchData, clearData } = useHttp(
     "http://localhost:3000/orders",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
+    option
   );
 
   const handleSubmit = async (event) => {
@@ -36,7 +37,7 @@ const Checkout = () => {
     const fs = new FormData(event.target);
     const customerOrder = Object.fromEntries(fs.entries());
 
-    fetchData(
+    await fetchData(
       JSON.stringify({
         order: {
           items: cartCtx.items,
@@ -46,13 +47,14 @@ const Checkout = () => {
     );
 
     cartCtx.clearCart();
+    userProgressCtx.showCheckoutSuccess();
+    form.current.reset();
     clearData();
   };
 
   const showButton = (
     <>
       <Button textOnly type="button" onClick={handleCloseCheckout}>
-        {/* {console.log(`before-${data}`)} */}
         close
       </Button>
       <Button>submit order</Button>
@@ -60,36 +62,36 @@ const Checkout = () => {
   );
   const action = isLoading ? <span>sending...</span> : showButton;
 
-  if (data && !error) {
-    // console.log(`successPage-${data}`);
-    return (
+  return (
+    <>
+      <Modal
+        open={userProgressCtx.status === "SHOW_CHECKOUT_SUCCESS"}
+        onClose={handleCloseSuccess}
+      >
+        <h3>{error ? "failed to submit order" : "success!"}</h3>
+        <Button onClick={handleCloseSuccess}>okay</Button>
+      </Modal>
       <Modal
         open={userProgressCtx.status === "SHOW_CHECKOUT"}
-        onClose={handleCloseCheckout}
+        onClose={
+          userProgressCtx.status === "SHOW_CHECKOUT"
+            ? handleCloseCheckout
+            : null
+        }
       >
-        <h3>success!</h3>
-        <Button onClick={handleCloseCheckout}>okay</Button>
+        <form ref={form} onSubmit={handleSubmit}>
+          <Input title="Full Name" type="text" id="name" />
+          <Input title="E-Mail Address" type="email" id="email" />
+          <Input title="Street" type="text" id="street" />
+          <div className="control-row">
+            <Input title="Postal Code" type="text" id="postal-code" />
+            <Input title="City" type="text" id="city" />
+          </div>
+
+          <p className="modal-actions">{action}</p>
+        </form>
       </Modal>
-    );
-  }
-
-  return (
-    <Modal
-      open={userProgressCtx.status === "SHOW_CHECKOUT"}
-      onClose={handleCloseCheckout}
-    >
-      <form onSubmit={handleSubmit}>
-        <Input title="Full Name" type="text" id="name" />
-        <Input title="E-Mail Address" type="email" id="email" />
-        <Input title="Street" type="text" id="street" />
-        <div className="control-row">
-          <Input title="Postal Code" type="text" id="postal-code" />
-          <Input title="City" type="text" id="city" />
-        </div>
-
-        <p className="modal-actions">{action}</p>
-      </form>
-    </Modal>
+    </>
   );
 };
 
